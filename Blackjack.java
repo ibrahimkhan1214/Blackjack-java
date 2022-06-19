@@ -23,14 +23,39 @@ import java.util.Vector;
 import java.util.Scanner;
 
 public class Blackjack{
+ static final Scanner scan = new Scanner(System.in);
   public static void main(String[] args){
-    playgame();
+    System.out.print("Start the game? (y/n): ");  //get the input 'y' to start the game and 'n' to leave the game
+    char choice = scan.next().charAt(0);
+
+    while(choice != 'y' && choice != 'n'){    //input validation
+      System.out.println("Please either choose 'y' for yes or 'n' no: ");
+      choice = scan.next().charAt(0);
+    }
+
+    while(choice == 'y'){   
+      playgame();   //here we are calling the actual game method
+      System.out.print("Care for another game of blackjack? (y/n): ");  //ask to restart the game?
+      choice = scan.next().charAt(0);   
+      while(choice != 'y' && choice != 'n'){   
+        System.out.println("Please either choose 'y' for yes or 'n' no: ");
+        choice = scan.next().charAt(0);
+      }
+    }
+
+    if(choice == 'n'){    //if the player chooses not to play the game exit the game.
+      System.out.println("Have a great day!");
+      System.exit(0);
+    }
+
+    scan.close(); //release the scanner
   }
 
   public static void playgame(){
-    Scanner scan = new Scanner(System.in);
+
       int playerTotalValue = 0;       //intializing with total points = 0
       int dealerTotalValue = 0;
+      char playerChoice;
 
       Vector<String> playerCards = new Vector<String>();    //vectors to hold cards
       Vector<String> dealerCards = new Vector<String>();
@@ -45,18 +70,32 @@ public class Blackjack{
       System.out.println("\nDealer Cards:\n" + dealerCards.get(0) + hiddenCard);
 
       System.out.println("\nPlayers turn...\nChoose 1 or 2:\n1 => Hit\n2 => Stay");
-      int playerChoice = scan.nextInt();
-      while(playerChoice != 1 && playerChoice != 2){
-        System.out.println("\nPlayers turn...\nChoose 1 or 2:\n1 => Hit\n2 => Stay");
-        playerChoice = scan.nextInt();
+      playerChoice = scan.next().charAt(0);
+
+      while(playerChoice != '1' && playerChoice != '2'){
+        System.out.println("\nPlease Choose either 1 or 2:\n1 => Hit\n2 => Stay");
+        playerChoice = scan.next().charAt(0);
       }
+      System.out.println("PLAYER CHOICE IS " + playerChoice);
+      
+      // while(playerChoice != (int)playerChoice && playerChoice != 1 && playerChoice != 2){
+      //     playerChoice = scan.nextInt();
+      //     System.out.println("IN THE VALIDATION ELSE");
+      //     System.out.println("\nPlease Choose either 1 or 2:\n1 => Hit\n2 => Stay");
+      //     playerChoice = scan.nextInt();
+      // }
+        
+      // while(playerChoice != 1 && playerChoice != 2){
+      //   System.out.println("\nPlease Choose either 1 or 2:\n1 => Hit\n2 => Stay");
+      //   playerChoice = scan.nextInt();
+      // }
       //if the player intially chooses to stay calculate the total points
-      if(playerChoice == 2){
+      if(playerChoice == '2'){
         playerTotalValue = (getCardNumber(playerCards.get(0)) + getCardNumber(playerCards.get(1)));
       }
 
       //player choice is 1
-      while(playerChoice == 1){
+      while(playerChoice == '1'){
         String playerDraw = getCard();  //draw a new card from the deck
         playerCards.addElement(playerDraw); //add the new card to players hand
 
@@ -68,23 +107,28 @@ public class Blackjack{
 
         //if the total value exceeds 21 thats a bust and player looses
         if(playerTotalValue > 21){
-          System.out.println("\nPLAYER LOST!... Value exceeded 21.\n");
-          System.out.println("Total Value: " + playerTotalValue);
-          System.exit(0);
+          // System.out.println("\nPLAYER LOST!... The player drew a bust.\n");
+          // System.out.println("Total Value: " + playerTotalValue);
+          matchDecision(playerTotalValue, dealerTotalValue, playerCards, dealerCards);
+          break;
         }
         //ask the player again for hit or stay
-        System.out.println("\nPlayers turn...\nChoose 1 or 2:\n1 => Hit\n2 => Stay");
-        playerChoice = scan.nextInt();
+        System.out.println("\nPlayers turn...\nChoose 1 or 2:\n1 => Hit\n2 => Stay.");
+        playerChoice = scan.next().charAt(0);
+        while(playerChoice != '1' && playerChoice != '2'){
+          System.out.println("\nPlease Choose either 1 or 2:\n1 => Hit\n2 => Stay");
+          playerChoice = scan.next().charAt(0);
+        }
 
         //if chosen 1 then the loop goes again and if chosen 2 then the following code executes
-        if(playerChoice == 2){
+        if(playerChoice == '2'){
           playerTotalValue = 0;
           for(int i =0;i<playerCards.size();i++){
             playerTotalValue += getCardNumber(playerCards.get(i));
           }
         }
       }
-
+if(playerTotalValue < 21){
       //dealer turn starts as player chose to stay.
         System.out.println("\nDealers turn...\n");
         System.out.println("Dealer reveals Hidden card\n" + dealerCards.get(1));  //reveal the hidden card
@@ -123,8 +167,8 @@ public class Blackjack{
         }
        }
     
-
-    scan.close(); //release the scanner
+}
+  
   }
 
   //this method will select a random card and return the string
@@ -420,31 +464,31 @@ return decision;
 
   //making the match decision
   public static void matchDecision(int playerTotal, int dealerTotal, Vector<String> playerCards, Vector<String> dealerCards){
+    System.out.println("\n\t***GAME OVER***\t\n");
+    System.out.println("\n\t***MATCH RESULT***\t\n");
+
+    if(playerTotal > 21){ //is player busted then dealer won
+      System.out.println("Dealer Won! Player drew a bust with a total value of: " + playerTotal + "\n");
+    }
+    else if(dealerTotal > 21){  //if dealer busted then player won
+      System.out.println("Player Won! Dealer drew a bust with a total value of: " + dealerTotal + "\n");
+    }
+    else if(playerTotal > dealerTotal){ //if no one busted and player total hand value is greater than that of dealers then player won.
+      System.out.println("\nPlayer Won!\nPlayer Total: " + playerTotal + "\nDealerTotal: " + dealerTotal);
+    }
+    else if(dealerTotal > playerTotal){//if no one busted and dealers total hand value is greater than that of players then dealer won.
+      System.out.println("\nDealer Won!\nPlayer Total: " + playerTotal + "\nDealerTotal: " + dealerTotal);
+    }
+    else{ //if both have same hands then its a draw
+      System.out.println("\nWhat a match! It ended up as a draw!\n");
+    }
+
     System.out.println("Player Cards: \n" );  //show player cards
     showPlayerCards(playerCards);
     
     System.out.println("\nDealer Cards: \n"); //show dealer cards
     showDealerCards(dealerCards);
 
-    if(playerTotal > 21){ //is player busted then dealer won
-      System.out.println("Dealer Won! Player drew a bust with a total value of: " + playerTotal);
-      System.exit(0);
-    }
-    else if(dealerTotal > 21){  //if dealer busted then player won
-      System.out.println("Player Won! Dealer drew a bust with a total value of: " + dealerTotal);
-    }
-    else if(playerTotal > dealerTotal){ //if no one busted and player total hand value is greater than that of dealers then player won.
-      System.out.println("\nPlayer Won!\nPlayer Total: " + playerTotal + "\nDealerTotal: " + dealerTotal);
-      System.exit(0);
-    }
-    else if(dealerTotal > playerTotal){//if no one busted and dealers total hand value is greater than that of players then dealer won.
-      System.out.println("\nDealer Won!\nPlayer Total: " + playerTotal + "\nDealerTotal: " + dealerTotal);
-      System.exit(0);
-    }
-    else{ //if both have same hands then its a draw
-      System.out.println("\nWhat a match! It ended up as a draw!\n");
-      System.exit(0);
-    }
   }
 
   //public function to print out dealer cards from vector
